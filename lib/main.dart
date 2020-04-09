@@ -270,9 +270,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 webView = controller;
               },
               onLoadStart: (InAppWebViewController controller, String url) {
-                print("onLoadStart $url");
+                try {
+                  
+                // print("onLoadStart $url");
                 String _url = url.substring(0, 22);
-                print('URL SUB STRING ======>>> $_url');
+                // print('URL SUB STRING ======>>> $_url');
                 setState(() {
                   if (_urlCompare.compareTo(_url) != 1) {
                     this.url = url;
@@ -286,15 +288,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     _launchURL(url);
                   }
                 });
+                } catch (e) {
+                }
               },
               onLoadStop:
                   (InAppWebViewController controller, String url) async {
-                print("onLoadStop $url");
-
+                // print("onLoadStop $url");
+                try {
                 String resultImg = await controller.evaluateJavascript(source: "\$('.avatar.rounded-circle').attr('src');");
                 String result3 = await controller.evaluateJavascript(source: "\$('.username').html();");
-                print("RESULT URL GET ====>>> $result3 ==== IMG ==>>>> $resultImg"); // prints the body html
-
+                  
                 setState(() {
                   this.url = url;
                   if(result3!=null){
@@ -302,12 +305,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     urlimguser=resultImg;
                   }
                 });
+                } catch (e) {
+                }
+
               },
               onProgressChanged:
                   (InAppWebViewController controller, int progress) {
+                    try {
+                      
                 setState(() {
                   this.progress = progress / 100;
-                  print('PROGGRESSSS ======>>>> $progress');
+                  // print('PROGGRESSSS ======>>>> $progress');
                   if (progress < 100) {
                     setState(() {
                       _isLoading = true;
@@ -316,6 +324,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     _isLoading = false;
                   }
                 });
+                    } catch (e) {
+                    }
               },
             ),
             Container(
@@ -332,6 +342,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<bool> _exitApp(BuildContext context) async {
+    try {
+      
     if (webView != null) {
       webView.goBack();
     } else {
@@ -341,13 +353,19 @@ class _MyHomePageState extends State<MyHomePage> {
       );
       return Future.value(false);
     }
+    } catch (e) {
+    }
   }
 
   _launchURL(url) async {
+    try {
+      
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       // throw 'Could not launch $url';
+    }
+    } catch (e) {
     }
   }
 }
