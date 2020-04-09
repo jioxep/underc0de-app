@@ -276,13 +276,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 String _url = url.substring(0, 22);
                 // print('URL SUB STRING ======>>> $_url');
                 setState(() {
-                  if (_urlCompare.compareTo(_url) != 1) {
+                  if (_urlCompare==_url) {
                     this.url = url;
                     print('COMPARE URL TRUE');
-                  } else if (_urlCompare2.compareTo(_url) != 1) {
+                  } if (_urlCompare2 == _url) {
                     this.url = url;
                     print('COMPARE URL TRUE');
-                  } else {
+                  } if (_url != _urlCompare && _url!=_urlCompare2){
                     // this.url = url;
                     print('COMPARE URL FALSE');
                     _launchURL(url);
