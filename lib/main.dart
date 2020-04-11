@@ -54,11 +54,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String url = "https://underc0de.org/foro/";
   String _urlCompare = 'https://underc0de.org/';
   String _urlCompare2 = 'https://blog.underc0de';
-  String username="Invitado",urlimguser="";
+  String username = "Invitado", urlimguser = "";
   double progress = 0;
-  bool _isLoading = false;
+  bool _isLoading = false, _isLoadingFrist = false;
   MediaQueryData queryData;
-  int _counter = 0;
+  int _counter = 0, countFristLaunch = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -98,18 +98,17 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                                Spacer(),
+                            Spacer(),
                             CircleAvatar(
-                              backgroundColor: Colors.white,
+                                backgroundColor: Colors.white,
                                 radius: 20,
                                 backgroundImage: NetworkImage(urlimguser)),
-                                Spacer(),
+                            Spacer(),
                             Text(
                               username,
                               style: style20,
                             ),
-                                Spacer(),
-
+                            Spacer(),
                           ]),
                     ),
                     ListTile(
@@ -271,61 +270,65 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               onLoadStart: (InAppWebViewController controller, String url) {
                 try {
-                  
-                // print("onLoadStart $url");
-                String _url = url.substring(0, 22);
-                // print('URL SUB STRING ======>>> $_url');
-                setState(() {
-                  if (_urlCompare==_url) {
-                    this.url = url;
-                    print('COMPARE URL TRUE');
-                  } if (_urlCompare2 == _url) {
-                    this.url = url;
-                    print('COMPARE URL TRUE');
-                  } if (_url != _urlCompare && _url!=_urlCompare2){
-                    // this.url = url;
-                    print('COMPARE URL FALSE');
-                    _launchURL(url);
-                  }
-                });
-                } catch (e) {
-                }
+                  // print("onLoadStart $url");
+                  String _url = url.substring(0, 22);
+                  // print('URL SUB STRING ======>>> $_url');
+                  setState(() {
+                    if (_urlCompare == _url) {
+                      this.url = url;
+                      print('COMPARE URL TRUE');
+                    }
+                    if (_urlCompare2 == _url) {
+                      this.url = url;
+                      print('COMPARE URL TRUE');
+                    }
+                    if (_url != _urlCompare && _url != _urlCompare2) {
+                      // this.url = url;
+                      print('COMPARE URL FALSE');
+                      _launchURL(url);
+                    }
+                  });
+                } catch (e) {}
               },
               onLoadStop:
                   (InAppWebViewController controller, String url) async {
                 // print("onLoadStop $url");
                 try {
-                String resultImg = await controller.evaluateJavascript(source: "\$('.avatar.rounded-circle').attr('src');");
-                String result3 = await controller.evaluateJavascript(source: "\$('.username').html();");
-                  
-                setState(() {
-                  this.url = url;
-                  if(result3!=null){
-                    username=result3;
-                    urlimguser=resultImg;
-                  }
-                });
-                } catch (e) {
-                }
+                  String resultImg = await controller.evaluateJavascript(
+                      source: "\$('.avatar.rounded-circle').attr('src');");
+                  String result3 = await controller.evaluateJavascript(
+                      source: "\$('.username').html();");
 
+                  setState(() {
+                    this.url = url;
+                    if (result3 != null) {
+                      username = result3;
+                      urlimguser = resultImg;
+                    }
+                  });
+                } catch (e) {}
               },
               onProgressChanged:
                   (InAppWebViewController controller, int progress) {
-                    try {
-                      
-                setState(() {
-                  this.progress = progress / 100;
-                  // print('PROGGRESSSS ======>>>> $progress');
-                  if (progress < 100) {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                  } else {
-                    _isLoading = false;
-                  }
-                });
-                    } catch (e) {
+                try {
+                  setState(() {
+                    this.progress = progress / 100;
+                    // print('PROGGRESSSS ======>>>> $progress');
+                    if (progress < 100) {
+                      setState(() {
+                        countFristLaunch++;
+                        _isLoading = true;
+                        if (countFristLaunch == 1) {
+                          _isLoadingFrist = true;
+                        } else {
+                          _isLoadingFrist = false;
+                        }
+                      });
+                    } else {
+                      _isLoading = false;
                     }
+                  });
+                } catch (e) {}
               },
             ),
             Container(
@@ -335,6 +338,24 @@ class _MyHomePageState extends State<MyHomePage> {
                         backgroundColor: Color.fromRGBO(0, 14, 23, 1),
                       )
                     : Container()),
+            Container(
+                alignment: Alignment.center,
+                child: _isLoadingFrist
+                    ? Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                        decoration: new BoxDecoration(
+                            color: Colors.black),
+                        alignment: Alignment.center,
+                        child: new ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          child: new Image.asset(
+                            "images/logo.png",
+                            scale: 1,
+                            alignment: Alignment.center,
+                          ),
+                        ))
+                    : Container()),
           ]),
         ),
       ),
@@ -343,29 +364,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<bool> _exitApp(BuildContext context) async {
     try {
-      
-    if (webView != null) {
-      webView.goBack();
-    } else {
-      print('NO FUNCIONO');
-      Scaffold.of(context).showSnackBar(
-        const SnackBar(content: Text("No back history item")),
-      );
-      return Future.value(false);
-    }
-    } catch (e) {
-    }
+      if (webView != null) {
+        webView.goBack();
+      } else {
+        print('NO FUNCIONO');
+        Scaffold.of(context).showSnackBar(
+          const SnackBar(content: Text("No back history item")),
+        );
+        return Future.value(false);
+      }
+    } catch (e) {}
   }
 
   _launchURL(url) async {
     try {
-      
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      // throw 'Could not launch $url';
-    }
-    } catch (e) {
-    }
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        // throw 'Could not launch $url';
+      }
+    } catch (e) {}
   }
 }
